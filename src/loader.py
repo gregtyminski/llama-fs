@@ -65,8 +65,16 @@ def load_documents(path: str):
         # By default, llama index split files into multiple "documents"
         if len(docs) > 1:
             # So we first join all the document contexts, then truncate by token count
-            text = splitter.split_text("\n".join([d.text for d in docs]))[0]
-            documents.append(Document(text=text, metadata=docs[0].metadata))
+            joined = "\n".join([d.text for d in docs])
+            text_chunks = splitter.split_text(joined)
+            
+            if text_chunks:  # Check if the split_text returned a non-empty list
+                text = text_chunks[0]
+                documents.append(Document(text=text, metadata=docs[0].metadata))
+            else:
+                # Handle the case where split_text returns an empty list
+                # You can choose to skip this document or handle it differently
+                continue
         else:
             documents.append(docs[0])
     return documents
